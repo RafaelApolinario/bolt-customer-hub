@@ -1,0 +1,6 @@
+.git
+.github
+.m2
+target
+docs
+*.log

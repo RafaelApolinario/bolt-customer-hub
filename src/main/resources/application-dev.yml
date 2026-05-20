@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:customerhub_dev;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+  jpa:
+    show-sql: true

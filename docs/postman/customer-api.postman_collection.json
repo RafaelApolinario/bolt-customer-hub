@@ -1,0 +1,116 @@
+{
+  "info": {
+    "name": "Bolt Customer Hub API",
+    "description": "Customer Management API collection for local execution on port 8082.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "customerId",
+      "value": "replace-with-created-customer-id"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create customer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/customers",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Maria Silva\",\n  \"document\": \"12345678901\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-1001\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Update customer",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers", "{{customerId}}"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Maria Silva Souza\",\n  \"document\": \"12345678901\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-1001\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete customer",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers", "{{customerId}}"]
+        }
+      }
+    },
+    {
+      "name": "List customers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers"]
+        }
+      }
+    },
+    {
+      "name": "Get customer by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers", "{{customerId}}"]
+        }
+      }
+    },
+    {
+      "name": "List latest customers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers/latest",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "customers", "latest"]
+        }
+      }
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        }
+      }
+    }
+  ]
+}
