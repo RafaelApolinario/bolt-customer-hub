@@ -71,9 +71,62 @@ Docker
 GitHub Actions
 ```
 
+## Como rodar localmente
+
+Pré-requisito:
+
+```txt
+Java 17
+```
+
+O repositório usa Maven Wrapper, então não é necessário instalar Maven globalmente.
+
+No Windows:
+
+```powershell
+$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
+.\mvnw.cmd spring-boot:run
+```
+
+Em bash:
+
+```bash
+./mvnw spring-boot:run
+```
+
+A aplicação sobe em:
+
+```txt
+http://localhost:8082
+```
+
+Endpoints úteis no bootstrap:
+
+```txt
+GET http://localhost:8082/api/health
+GET http://localhost:8082/actuator/health
+GET http://localhost:8082/swagger-ui.html
+GET http://localhost:8082/h2-console
+```
+
+## Como testar
+
+No Windows:
+
+```powershell
+$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
+.\mvnw.cmd clean test
+```
+
+Em bash:
+
+```bash
+./scripts/check.sh
+```
+
 ## Status
 
-Entrega atual: especificação inicial do desafio.
+Entrega atual: especificação inicial do desafio e bootstrap Spring Boot.
 
-Próximo passo recomendado: `feature/00-project-bootstrap`, criando a base Spring Boot
-com Maven, Java 17, H2, profiles `dev` e `test`, porta `8082` e validação com `mvn test`.
+Próximo passo recomendado: `feature/02-domain-model`, criando o domínio puro sem
+dependências de Spring ou JPA.
