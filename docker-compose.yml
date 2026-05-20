@@ -1,0 +1,9 @@
+services:
+  customer-hub:
+    build:
+      context: .
+    container_name: bolt-customer-hub
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8082:8082"
