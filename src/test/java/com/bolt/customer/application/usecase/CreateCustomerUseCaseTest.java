@@ -20,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bolt.customer.application.command.ConsumerUnitCommand;
 import com.bolt.customer.application.command.CreateCustomerCommand;
+import com.bolt.customer.application.event.CustomerMgAnalysisPublisher;
+import com.bolt.customer.application.event.CustomerRegisteredInMgEvent;
 import com.bolt.customer.application.gateway.AddressGateway;
 import com.bolt.customer.domain.customer.Address;
 import com.bolt.customer.domain.customer.Customer;
@@ -41,11 +43,14 @@ class CreateCustomerUseCaseTest {
 	@Mock
 	private AddressGateway addressGateway;
 
+	@Mock
+	private CustomerMgAnalysisPublisher mgAnalysisPublisher;
+
 	private CreateCustomerUseCase useCase;
 
 	@BeforeEach
 	void setUp() {
-		useCase = new CreateCustomerUseCase(customerRepository, addressGateway, new CustomerDomainService(), CLOCK);
+		useCase = new CreateCustomerUseCase(customerRepository, addressGateway, new CustomerDomainService(), mgAnalysisPublisher, CLOCK);
 	}
 
 	@Test
@@ -61,6 +66,29 @@ class CreateCustomerUseCaseTest {
 		assertThat(customer.getConsumerUnits()).hasSize(1);
 		assertThat(customer.getCreatedAt()).isEqualTo(Instant.parse("2026-05-20T10:00:00Z"));
 		verify(customerRepository).save(any(Customer.class));
+	}
+
+	@Test
+	void shouldPublishMgAnalysisEventWhenCustomerHasConsumerUnitInMg() {
+		when(addressGateway.findByZipCode("30140071")).thenReturn(address("MG"));
+		when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		Customer customer = useCase.execute(command("12345678901", "UC-100", "30140071"));
+
+		verify(mgAnalysisPublisher).publish(CustomerRegisteredInMgEvent.of(
+				customer.getId().toString(),
+				"12345678901",
+				Instant.parse("2026-05-20T10:00:00Z")));
+	}
+
+	@Test
+	void shouldNotPublishMgAnalysisEventWhenCustomerHasNoConsumerUnitInMg() {
+		when(addressGateway.findByZipCode("30140071")).thenReturn(address("RJ"));
+		when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		useCase.execute(command("12345678901", "UC-100", "30140071"));
+
+		verify(mgAnalysisPublisher, never()).publish(any());
 	}
 
 	@Test
