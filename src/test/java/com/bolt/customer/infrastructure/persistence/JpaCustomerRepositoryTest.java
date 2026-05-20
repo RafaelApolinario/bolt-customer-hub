@@ -50,11 +50,26 @@ class JpaCustomerRepositoryTest {
 				.containsExactly(active.getId());
 	}
 
+	@Test
+	void shouldListLatestActiveCustomers() {
+		Customer older = repository.save(customer("12345678901", "UC-100", Clock.fixed(Instant.parse("2026-05-20T10:00:00Z"), ZoneOffset.UTC)));
+		Customer newer = repository.save(customer("98765432100", "UC-200", Clock.fixed(Instant.parse("2026-05-20T11:00:00Z"), ZoneOffset.UTC)));
+
+		assertThat(repository.findLatestActive(1))
+				.extracting(Customer::getId)
+				.containsExactly(newer.getId())
+				.doesNotContain(older.getId());
+	}
+
 	private static Customer customer(String document, String consumerUnitNumber) {
+		return customer(document, consumerUnitNumber, CLOCK);
+	}
+
+	private static Customer customer(String document, String consumerUnitNumber, Clock clock) {
 		return Customer.create(
 				"Maria Silva",
 				Document.of(document),
 				List.of(new ConsumerUnit(consumerUnitNumber, new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG"))),
-				CLOCK);
+				clock);
 	}
 }

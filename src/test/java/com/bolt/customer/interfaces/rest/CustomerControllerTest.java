@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -25,6 +26,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.bolt.customer.application.usecase.CreateCustomerUseCase;
 import com.bolt.customer.application.usecase.DeleteCustomerUseCase;
+import com.bolt.customer.application.usecase.GetCustomerByIdUseCase;
+import com.bolt.customer.application.usecase.ListCustomersUseCase;
+import com.bolt.customer.application.usecase.ListLatestCustomersUseCase;
 import com.bolt.customer.application.usecase.UpdateCustomerUseCase;
 import com.bolt.customer.domain.customer.Address;
 import com.bolt.customer.domain.customer.ConsumerUnit;
@@ -50,6 +54,15 @@ class CustomerControllerTest {
 
 	@MockitoBean
 	private DeleteCustomerUseCase deleteCustomerUseCase;
+
+	@MockitoBean
+	private GetCustomerByIdUseCase getCustomerByIdUseCase;
+
+	@MockitoBean
+	private ListCustomersUseCase listCustomersUseCase;
+
+	@MockitoBean
+	private ListLatestCustomersUseCase listLatestCustomersUseCase;
 
 	@Test
 	void shouldCreateCustomer() throws Exception {
@@ -137,5 +150,42 @@ class CustomerControllerTest {
 
 		mockMvc.perform(delete("/api/customers/{id}", customer.getId()))
 				.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void shouldGetCustomerById() throws Exception {
+		Customer customer = customer("Maria Silva");
+		when(getCustomerByIdUseCase.execute(any())).thenReturn(customer);
+
+		mockMvc.perform(get("/api/customers/{id}", customer.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(customer.getId().toString()))
+				.andExpect(jsonPath("$.name").value("Maria Silva"));
+	}
+
+	@Test
+	void shouldListCustomers() throws Exception {
+		when(listCustomersUseCase.execute(any())).thenReturn(List.of(customer("Maria Silva")));
+
+		mockMvc.perform(get("/api/customers"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].name").value("Maria Silva"));
+	}
+
+	@Test
+	void shouldListLatestCustomers() throws Exception {
+		when(listLatestCustomersUseCase.execute(any())).thenReturn(List.of(customer("Maria Silva")));
+
+		mockMvc.perform(get("/api/customers/latest"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].name").value("Maria Silva"));
+	}
+
+	private static Customer customer(String name) {
+		return Customer.create(
+				name,
+				Document.of("12345678901"),
+				List.of(new ConsumerUnit("UC-100", new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG"))),
+				CLOCK);
 	}
 }

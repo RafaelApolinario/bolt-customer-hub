@@ -8,6 +8,9 @@ import com.bolt.customer.application.command.ConsumerUnitCommand;
 import com.bolt.customer.application.command.CreateCustomerCommand;
 import com.bolt.customer.application.command.DeleteCustomerCommand;
 import com.bolt.customer.application.command.UpdateCustomerCommand;
+import com.bolt.customer.application.query.GetCustomerByIdQuery;
+import com.bolt.customer.application.query.ListCustomersQuery;
+import com.bolt.customer.application.query.ListLatestCustomersQuery;
 import com.bolt.customer.domain.customer.ConsumerUnit;
 import com.bolt.customer.domain.customer.Customer;
 import com.bolt.customer.domain.customer.CustomerId;
@@ -41,6 +44,18 @@ public class CustomerRestMapper {
 
 	public DeleteCustomerCommand toDeleteCommand(String id) {
 		return new DeleteCustomerCommand(CustomerId.from(id));
+	}
+
+	public GetCustomerByIdQuery toGetByIdQuery(String id) {
+		return new GetCustomerByIdQuery(CustomerId.from(id));
+	}
+
+	public ListCustomersQuery toListCustomersQuery() {
+		return new ListCustomersQuery();
+	}
+
+	public ListLatestCustomersQuery toListLatestCustomersQuery() {
+		return new ListLatestCustomersQuery(20);
 	}
 
 	public CustomerResponse toResponse(Customer customer) {
