@@ -3,6 +3,7 @@ package com.bolt.customer.interfaces.rest;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.bolt.customer.application.usecase.CreateCustomerUseCase;
+import com.bolt.customer.application.usecase.DeleteCustomerUseCase;
 import com.bolt.customer.application.usecase.UpdateCustomerUseCase;
 import com.bolt.customer.domain.customer.Address;
 import com.bolt.customer.domain.customer.ConsumerUnit;
@@ -45,6 +47,9 @@ class CustomerControllerTest {
 
 	@MockitoBean
 	private UpdateCustomerUseCase updateCustomerUseCase;
+
+	@MockitoBean
+	private DeleteCustomerUseCase deleteCustomerUseCase;
 
 	@Test
 	void shouldCreateCustomer() throws Exception {
@@ -120,5 +125,17 @@ class CustomerControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(customer.getId().toString()))
 				.andExpect(jsonPath("$.name").value("Maria Souza"));
+	}
+
+	@Test
+	void shouldDeleteCustomer() throws Exception {
+		Customer customer = Customer.create(
+				"Maria Silva",
+				Document.of("12345678901"),
+				List.of(new ConsumerUnit("UC-100", new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG"))),
+				CLOCK);
+
+		mockMvc.perform(delete("/api/customers/{id}", customer.getId()))
+				.andExpect(status().isNoContent());
 	}
 }

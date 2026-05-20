@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.bolt.customer.application.command.ConsumerUnitCommand;
 import com.bolt.customer.application.command.CreateCustomerCommand;
+import com.bolt.customer.application.command.DeleteCustomerCommand;
 import com.bolt.customer.application.command.UpdateCustomerCommand;
 import com.bolt.customer.domain.customer.ConsumerUnit;
 import com.bolt.customer.domain.customer.Customer;
@@ -36,6 +37,10 @@ public class CustomerRestMapper {
 				request.consumerUnits().stream()
 						.map(this::toCommand)
 						.toList());
+	}
+
+	public DeleteCustomerCommand toDeleteCommand(String id) {
+		return new DeleteCustomerCommand(CustomerId.from(id));
 	}
 
 	public CustomerResponse toResponse(Customer customer) {

@@ -3,6 +3,7 @@ package com.bolt.customer.interfaces.rest;
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bolt.customer.application.usecase.CreateCustomerUseCase;
+import com.bolt.customer.application.usecase.DeleteCustomerUseCase;
 import com.bolt.customer.application.usecase.UpdateCustomerUseCase;
 import com.bolt.customer.domain.customer.Customer;
 import com.bolt.customer.interfaces.mapper.CustomerRestMapper;
@@ -26,14 +28,17 @@ public class CustomerController {
 
 	private final CreateCustomerUseCase createCustomerUseCase;
 	private final UpdateCustomerUseCase updateCustomerUseCase;
+	private final DeleteCustomerUseCase deleteCustomerUseCase;
 	private final CustomerRestMapper mapper;
 
 	public CustomerController(
 			CreateCustomerUseCase createCustomerUseCase,
 			UpdateCustomerUseCase updateCustomerUseCase,
+			DeleteCustomerUseCase deleteCustomerUseCase,
 			CustomerRestMapper mapper) {
 		this.createCustomerUseCase = createCustomerUseCase;
 		this.updateCustomerUseCase = updateCustomerUseCase;
+		this.deleteCustomerUseCase = deleteCustomerUseCase;
 		this.mapper = mapper;
 	}
 
@@ -51,5 +56,11 @@ public class CustomerController {
 			@Valid @RequestBody UpdateCustomerRequest request) {
 		Customer customer = updateCustomerUseCase.execute(mapper.toCommand(id, request));
 		return ResponseEntity.ok(mapper.toResponse(customer));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> delete(@PathVariable String id) {
+		deleteCustomerUseCase.execute(mapper.toDeleteCommand(id));
+		return ResponseEntity.noContent().build();
 	}
 }
