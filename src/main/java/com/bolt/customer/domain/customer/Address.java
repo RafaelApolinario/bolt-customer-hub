@@ -13,8 +13,8 @@ public record Address(
 
 	public Address {
 		zipCode = normalizeZipCode(zipCode);
-		street = requireNonBlank(street, "street");
-		neighborhood = requireNonBlank(neighborhood, "neighborhood");
+		street = normalizeOptional(street);
+		neighborhood = normalizeOptional(neighborhood);
 		city = requireNonBlank(city, "city");
 		state = normalizeState(state);
 	}
@@ -40,5 +40,9 @@ public record Address(
 			throw new BusinessException("address." + field + ".required", "Address " + field + " is required");
 		}
 		return value.trim();
+	}
+
+	private static String normalizeOptional(String value) {
+		return value == null ? "" : value.trim();
 	}
 }
