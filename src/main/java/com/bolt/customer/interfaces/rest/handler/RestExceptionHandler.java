@@ -47,6 +47,11 @@ public class RestExceptionHandler {
 		return build(HttpStatus.BAD_REQUEST, "Invalid request payload", request);
 	}
 
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException exception, HttpServletRequest request) {
+		return build(HttpStatus.BAD_REQUEST, exception.getMessage(), request);
+	}
+
 	private ResponseEntity<ErrorResponse> build(HttpStatus status, String message, HttpServletRequest request) {
 		return ResponseEntity.status(status)
 				.body(new ErrorResponse(

@@ -6,10 +6,13 @@ import org.springframework.stereotype.Component;
 
 import com.bolt.customer.application.command.ConsumerUnitCommand;
 import com.bolt.customer.application.command.CreateCustomerCommand;
+import com.bolt.customer.application.command.UpdateCustomerCommand;
 import com.bolt.customer.domain.customer.ConsumerUnit;
 import com.bolt.customer.domain.customer.Customer;
+import com.bolt.customer.domain.customer.CustomerId;
 import com.bolt.customer.interfaces.rest.request.ConsumerUnitRequest;
 import com.bolt.customer.interfaces.rest.request.CreateCustomerRequest;
+import com.bolt.customer.interfaces.rest.request.UpdateCustomerRequest;
 import com.bolt.customer.interfaces.rest.response.ConsumerUnitResponse;
 import com.bolt.customer.interfaces.rest.response.CustomerResponse;
 
@@ -18,6 +21,16 @@ public class CustomerRestMapper {
 
 	public CreateCustomerCommand toCommand(CreateCustomerRequest request) {
 		return new CreateCustomerCommand(
+				request.name(),
+				request.document(),
+				request.consumerUnits().stream()
+						.map(this::toCommand)
+						.toList());
+	}
+
+	public UpdateCustomerCommand toCommand(String id, UpdateCustomerRequest request) {
+		return new UpdateCustomerCommand(
+				CustomerId.from(id),
 				request.name(),
 				request.document(),
 				request.consumerUnits().stream()

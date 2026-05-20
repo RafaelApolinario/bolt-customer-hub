@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import com.bolt.customer.application.usecase.CreateCustomerUseCase;
+import com.bolt.customer.application.usecase.UpdateCustomerUseCase;
 import com.bolt.customer.domain.customer.Address;
 import com.bolt.customer.domain.customer.ConsumerUnit;
 import com.bolt.customer.domain.customer.Customer;
@@ -40,6 +42,9 @@ class CustomerControllerTest {
 
 	@MockitoBean
 	private CreateCustomerUseCase createCustomerUseCase;
+
+	@MockitoBean
+	private UpdateCustomerUseCase updateCustomerUseCase;
 
 	@Test
 	void shouldCreateCustomer() throws Exception {
@@ -87,5 +92,33 @@ class CustomerControllerTest {
 				.andExpect(jsonPath("$.timestamp", notNullValue()))
 				.andExpect(jsonPath("$.status").value(400))
 				.andExpect(jsonPath("$.path").value("/api/customers"));
+	}
+
+	@Test
+	void shouldUpdateCustomer() throws Exception {
+		Customer customer = Customer.create(
+				"Maria Souza",
+				Document.of("12345678901"),
+				List.of(new ConsumerUnit("UC-100", new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG"))),
+				CLOCK);
+		when(updateCustomerUseCase.execute(any())).thenReturn(customer);
+
+		mockMvc.perform(put("/api/customers/{id}", customer.getId())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Maria Souza",
+								  "document": "12345678901",
+								  "consumerUnits": [
+								    {
+								      "number": "UC-100",
+								      "zipCode": "30140071"
+								    }
+								  ]
+								}
+								"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(customer.getId().toString()))
+				.andExpect(jsonPath("$.name").value("Maria Souza"));
 	}
 }
