@@ -61,6 +61,26 @@ class JpaCustomerRepositoryTest {
 				.doesNotContain(older.getId());
 	}
 
+	@Test
+	void shouldUpdateCustomerKeepingExistingConsumerUnitNumber() {
+		Customer saved = repository.save(customer("12345678901", "UC-100"));
+
+		saved.update(
+				"Maria Souza",
+				Document.of("12345678901"),
+				List.of(
+						new ConsumerUnit("UC-100", new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG")),
+						new ConsumerUnit("UC-101", new Address("30140071", "Rua A", "Centro", "Belo Horizonte", "MG"))),
+				CLOCK);
+
+		Customer updated = repository.save(saved);
+
+		assertThat(updated.getName()).isEqualTo("Maria Souza");
+		assertThat(updated.getConsumerUnits())
+				.extracting(ConsumerUnit::number)
+				.containsExactly("UC-100", "UC-101");
+	}
+
 	private static Customer customer(String document, String consumerUnitNumber) {
 		return customer(document, consumerUnitNumber, CLOCK);
 	}

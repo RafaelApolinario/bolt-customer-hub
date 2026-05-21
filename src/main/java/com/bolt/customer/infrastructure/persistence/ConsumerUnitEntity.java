@@ -67,8 +67,26 @@ public class ConsumerUnitEntity {
 				address.state());
 	}
 
+	void updateFromDomain(ConsumerUnit consumerUnit) {
+		Address address = consumerUnit.address();
+		this.number = consumerUnit.number();
+		this.zipCode = address.zipCode();
+		this.street = address.street();
+		this.neighborhood = address.neighborhood();
+		this.city = address.city();
+		this.state = address.state();
+	}
+
 	public ConsumerUnit toDomain() {
 		return new ConsumerUnit(number, new Address(zipCode, street, neighborhood, city, state));
+	}
+
+	String getNumber() {
+		return number;
+	}
+
+	boolean hasNumber(String number) {
+		return this.number.equals(number);
 	}
 
 	void setCustomer(CustomerEntity customer) {
