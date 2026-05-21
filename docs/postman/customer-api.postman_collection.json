@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Bolt Customer Hub API",
-    "description": "Customer Management API collection for local execution on port 8082.",
+    "description": "Collection for local execution of the Customer Management API on port 8082. Run requests in order for the happy path: Health, Create, List, Get by ID, Update, Latest, Delete.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -11,12 +11,86 @@
     },
     {
       "key": "customerId",
-      "value": "replace-with-created-customer-id"
+      "value": ""
+    },
+    {
+      "key": "uniqueSuffix",
+      "value": ""
+    },
+    {
+      "key": "document",
+      "value": ""
+    },
+    {
+      "key": "consumerUnitNumber",
+      "value": ""
+    },
+    {
+      "key": "secondConsumerUnitNumber",
+      "value": ""
     }
   ],
   "item": [
     {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Health returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Create customer",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const suffix = Date.now().toString().slice(-9);",
+              "pm.collectionVariables.set('uniqueSuffix', suffix);",
+              "pm.collectionVariables.set('document', `99${suffix}`);",
+              "pm.collectionVariables.set('consumerUnitNumber', `UC-${suffix}`);",
+              "pm.collectionVariables.set('secondConsumerUnitNumber', `UC-${suffix}-2`);"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Create returns 201', function () {",
+              "  pm.response.to.have.status(201);",
+              "});",
+              "",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('customerId', body.id);"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -27,14 +101,78 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/customers",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers"
+          ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Maria Silva\",\n  \"document\": \"12345678901\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-1001\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
+          "raw": "{\n  \"name\": \"Maria Silva\",\n  \"document\": \"{{document}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"{{consumerUnitNumber}}\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
         }
       }
+    },
+    {
+      "name": "List customers",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('List returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get customer by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers",
+            "{{customerId}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Get by ID returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Update customer",
@@ -48,47 +186,33 @@
         ],
         "url": {
           "raw": "{{baseUrl}}/api/customers/{{customerId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers", "{{customerId}}"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers",
+            "{{customerId}}"
+          ]
         },
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Maria Silva Souza\",\n  \"document\": \"12345678901\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-1001\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
+          "raw": "{\n  \"name\": \"Maria Silva Souza\",\n  \"document\": \"{{document}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"{{consumerUnitNumber}}\",\n      \"zipCode\": \"30140071\"\n    },\n    {\n      \"number\": \"{{secondConsumerUnitNumber}}\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
         }
-      }
-    },
-    {
-      "name": "Delete customer",
-      "request": {
-        "method": "DELETE",
-        "url": {
-          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers", "{{customerId}}"]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Update returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
         }
-      }
-    },
-    {
-      "name": "List customers",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "{{baseUrl}}/api/customers",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers"]
-        }
-      }
-    },
-    {
-      "name": "Get customer by ID",
-      "request": {
-        "method": "GET",
-        "url": {
-          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers", "{{customerId}}"]
-        }
-      }
+      ]
     },
     {
       "name": "List latest customers",
@@ -96,21 +220,137 @@
         "method": "GET",
         "url": {
           "raw": "{{baseUrl}}/api/customers/latest",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "customers", "latest"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers",
+            "latest"
+          ]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Latest returns 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
-      "name": "Health",
+      "name": "Delete customer",
       "request": {
-        "method": "GET",
+        "method": "DELETE",
         "url": {
-          "raw": "{{baseUrl}}/api/health",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "health"]
+          "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers",
+            "{{customerId}}"
+          ]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Delete returns 204', function () {",
+              "  pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create customer with blocked state SP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/customers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cliente Bloqueado SP\",\n  \"document\": \"88{{uniqueSuffix}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-SP-{{uniqueSuffix}}\",\n      \"zipCode\": \"01001000\"\n    }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Blocked state returns 422', function () {",
+              "  pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create customer with duplicated document",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/customers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "customers"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Documento Duplicado\",\n  \"document\": \"{{document}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-DUP-{{uniqueSuffix}}\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Duplicated document returns 409', function () {",
+              "  pm.response.to.have.status(409);",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
