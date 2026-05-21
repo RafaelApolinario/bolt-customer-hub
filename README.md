@@ -48,6 +48,12 @@ cd bolt-customer-hub
 .\scripts\run.ps1
 ```
 
+Se a porta `8082` ja estiver em uso, rode em outra porta:
+
+```powershell
+.\scripts\run.ps1 -ServerPort 18082
+```
+
 Passo a passo no Git Bash, Linux ou macOS:
 
 ```bash
@@ -55,6 +61,12 @@ git clone <url-do-repositorio>
 cd bolt-customer-hub
 ./scripts/check.sh
 ./scripts/run.sh
+```
+
+Se a porta `8082` ja estiver em uso, rode em outra porta:
+
+```bash
+SERVER_PORT=18082 ./scripts/run.sh
 ```
 
 Depois que a aplicacao subir, acesse:
