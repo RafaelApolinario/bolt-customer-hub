@@ -25,6 +25,62 @@ O projeto implementa cadastro, atualizacao, remocao logica e consulta de cliente
 - Docker
 - GitHub Actions
 
+## Comecar do zero
+
+Pre-requisitos obrigatorios:
+
+- Java 17
+- Git
+
+Pre-requisitos opcionais:
+
+- Docker, apenas se quiser subir com `docker compose`
+- Postman, apenas se quiser importar a colecao em `docs/postman`
+
+Nao e necessario instalar Maven. O projeto usa Maven Wrapper (`mvnw` e `mvnw.cmd`).
+
+Passo a passo no Windows com PowerShell:
+
+```powershell
+git clone <url-do-repositorio>
+cd bolt-customer-hub
+.\scripts\check.ps1
+.\scripts\run.ps1
+```
+
+Passo a passo no Git Bash, Linux ou macOS:
+
+```bash
+git clone <url-do-repositorio>
+cd bolt-customer-hub
+./scripts/check.sh
+./scripts/run.sh
+```
+
+Depois que a aplicacao subir, acesse:
+
+```txt
+http://localhost:8082/swagger-ui.html
+```
+
+## Validacao rapida da API
+
+Com a aplicacao rodando, execute em outro terminal PowerShell:
+
+```powershell
+.\scripts\api-smoke.ps1
+```
+
+Esse smoke test faz o fluxo principal da API:
+
+- verifica `GET /api/health`
+- cria um cliente com `POST /api/customers`
+- lista clientes com `GET /api/customers`
+- busca por ID com `GET /api/customers/{id}`
+- atualiza com `PUT /api/customers/{id}`
+- lista ultimos clientes com `GET /api/customers/latest`
+- remove logicamente com `DELETE /api/customers/{id}`
+
 ## Arquitetura
 
 ```txt
@@ -139,14 +195,26 @@ O repositorio usa Maven Wrapper, entao nao e necessario instalar Maven globalmen
 No Windows:
 
 ```powershell
+.\scripts\run.ps1
+```
+
+Ou manualmente:
+
+```powershell
 $env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
 .\mvnw.cmd spring-boot:run
 ```
 
-Em bash:
+Em Git Bash, Linux ou macOS:
 
 ```bash
-./mvnw spring-boot:run
+./scripts/run.sh
+```
+
+Ou manualmente:
+
+```bash
+MAVEN_USER_HOME="$PWD/.m2" ./mvnw spring-boot:run
 ```
 
 A aplicacao sobe em:
@@ -160,11 +228,10 @@ http://localhost:8082
 No Windows:
 
 ```powershell
-$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
-.\mvnw.cmd clean test
+.\scripts\check.ps1
 ```
 
-Em bash:
+Em Git Bash, Linux ou macOS:
 
 ```bash
 ./scripts/check.sh
@@ -225,9 +292,13 @@ Ele roda em push para `main`, `develop` e `feature/**`, alem de pull requests pa
 ## Scripts
 
 ```txt
-scripts/check.sh -> executa validacao completa
-scripts/test.sh  -> executa testes
-scripts/run.sh   -> sobe a aplicacao
+scripts/check.ps1     -> executa validacao completa no PowerShell
+scripts/test.ps1      -> executa testes no PowerShell
+scripts/run.ps1       -> sobe a aplicacao no PowerShell
+scripts/api-smoke.ps1 -> testa o fluxo principal da API
+scripts/check.sh      -> executa validacao completa em bash
+scripts/test.sh       -> executa testes em bash
+scripts/run.sh        -> sobe a aplicacao em bash
 ```
 
 ## ViaCEP
