@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Bolt Customer Hub API",
-    "description": "Collection for local execution of the Customer Management API on port 8082. Run requests in order for the happy path: Health, Create, List, Get by ID, Update, Latest, Delete.",
+    "description": "Collection for local execution of the Customer Management API on port 8082. Run the happy path in order: Health, Create, List, Get by ID, Update, Latest, Delete. Error examples can also be executed individually.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -276,6 +276,32 @@
     },
     {
       "name": "Create customer with blocked state SP",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let suffix = pm.collectionVariables.get('uniqueSuffix');",
+              "if (!suffix) {",
+              "  suffix = Date.now().toString().slice(-9);",
+              "  pm.collectionVariables.set('uniqueSuffix', suffix);",
+              "}"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Blocked state returns 422', function () {",
+              "  pm.response.to.have.status(422);",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -298,23 +324,59 @@
           "mode": "raw",
           "raw": "{\n  \"name\": \"Cliente Bloqueado SP\",\n  \"document\": \"88{{uniqueSuffix}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-SP-{{uniqueSuffix}}\",\n      \"zipCode\": \"01001000\"\n    }\n  ]\n}"
         }
-      },
+      }
+    },
+    {
+      "name": "Create customer with duplicated document",
       "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "let suffix = pm.collectionVariables.get('uniqueSuffix');",
+              "if (!suffix) {",
+              "  suffix = Date.now().toString().slice(-9);",
+              "  pm.collectionVariables.set('uniqueSuffix', suffix);",
+              "}",
+              "",
+              "let document = pm.collectionVariables.get('document');",
+              "if (!document) {",
+              "  document = `77${suffix}`;",
+              "  pm.collectionVariables.set('document', document);",
+              "}",
+              "",
+              "const seedUnitNumber = `UC-DUP-SEED-${suffix}`;",
+              "pm.sendRequest({",
+              "  url: `${pm.collectionVariables.get('baseUrl')}/api/customers`,",
+              "  method: 'POST',",
+              "  header: { 'Content-Type': 'application/json' },",
+              "  body: {",
+              "    mode: 'raw',",
+              "    raw: JSON.stringify({",
+              "      name: 'Cliente Base Documento Duplicado',",
+              "      document: document,",
+              "      consumerUnits: [",
+              "        { number: seedUnitNumber, zipCode: '30140071' }",
+              "      ]",
+              "    })",
+              "  }",
+              "}, function () {});"
+            ]
+          }
+        },
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test('Blocked state returns 422', function () {",
-              "  pm.response.to.have.status(422);",
+              "pm.test('Duplicated document returns 409', function () {",
+              "  pm.response.to.have.status(409);",
               "});"
             ]
           }
         }
-      ]
-    },
-    {
-      "name": "Create customer with duplicated document",
+      ],
       "request": {
         "method": "POST",
         "header": [
@@ -337,20 +399,7 @@
           "mode": "raw",
           "raw": "{\n  \"name\": \"Documento Duplicado\",\n  \"document\": \"{{document}}\",\n  \"consumerUnits\": [\n    {\n      \"number\": \"UC-DUP-{{uniqueSuffix}}\",\n      \"zipCode\": \"30140071\"\n    }\n  ]\n}"
         }
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Duplicated document returns 409', function () {",
-              "  pm.response.to.have.status(409);",
-              "});"
-            ]
-          }
-        }
-      ]
+      }
     }
   ]
 }
