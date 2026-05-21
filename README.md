@@ -16,7 +16,7 @@ O projeto implementa cadastro, atualizacao, remocao logica e consulta de cliente
 - Spring Data JPA
 - Hibernate
 - H2 Database
-- Maven Wrapper
+- Maven local via scripts do projeto
 - Bean Validation
 - Spring RestClient para ViaCEP
 - Springdoc OpenAPI / Swagger
@@ -37,7 +37,7 @@ Pre-requisitos opcionais:
 - Docker, apenas se quiser subir com `docker compose`
 - Postman, apenas se quiser importar a colecao em `docs/postman`
 
-Nao e necessario instalar Maven. O projeto usa Maven Wrapper (`mvnw` e `mvnw.cmd`).
+Nao e necessario instalar Maven. Os scripts baixam e usam uma copia local do Maven em `.m2/tools`.
 
 Passo a passo no Windows com PowerShell:
 
@@ -202,7 +202,7 @@ Pre-requisito:
 Java 17
 ```
 
-O repositorio usa Maven Wrapper, entao nao e necessario instalar Maven globalmente.
+O repositorio baixa uma copia local do Maven quando os scripts sao executados pela primeira vez, entao nao e necessario instalar Maven globalmente.
 
 No Windows:
 
@@ -210,23 +210,10 @@ No Windows:
 .\scripts\run.ps1
 ```
 
-Ou manualmente:
-
-```powershell
-$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
-.\mvnw.cmd spring-boot:run
-```
-
 Em Git Bash, Linux ou macOS:
 
 ```bash
 ./scripts/run.sh
-```
-
-Ou manualmente:
-
-```bash
-MAVEN_USER_HOME="$PWD/.m2" ./mvnw spring-boot:run
 ```
 
 A aplicacao sobe em:
@@ -296,7 +283,7 @@ http://localhost:8082
 O workflow em `.github/workflows/ci.yml` executa:
 
 ```bash
-./mvnw -B clean test
+./scripts/check.sh
 ```
 
 Ele roda em push para `main`, `develop` e `feature/**`, alem de pull requests para `main` e `develop`.
@@ -308,9 +295,11 @@ scripts/check.ps1     -> executa validacao completa no PowerShell
 scripts/test.ps1      -> executa testes no PowerShell
 scripts/run.ps1       -> sobe a aplicacao no PowerShell
 scripts/api-smoke.ps1 -> testa o fluxo principal da API
+scripts/mvn-local.ps1 -> baixa e executa Maven local no PowerShell
 scripts/check.sh      -> executa validacao completa em bash
 scripts/test.sh       -> executa testes em bash
 scripts/run.sh        -> sobe a aplicacao em bash
+scripts/mvn-local.sh  -> baixa e executa Maven local em bash
 ```
 
 ## ViaCEP

@@ -27,4 +27,4 @@ jobs:
           cache: maven
 
       - name: Validate
-        run: ./mvnw -B clean test
+        run: ./scripts/check.sh
