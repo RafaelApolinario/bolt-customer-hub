@@ -180,6 +180,7 @@ Status esperados:
 - [Criterios de aceite](docs/specs/acceptance-criteria.md)
 - [Plano de testes](docs/specs/test-plan.md)
 - [Colecao Postman](docs/postman/customer-api.postman_collection.json)
+- [Como testar pelo Postman](docs/postman/README.md)
 - [Regras de IA do projeto](.ai/project-context.md)
 
 Swagger:
