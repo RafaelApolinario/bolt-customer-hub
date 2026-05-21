@@ -1,4 +1,6 @@
 #!/bin/bash
 set -e
 
-./mvnw test
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+bash "$SCRIPT_DIR/mvn-local.sh" test

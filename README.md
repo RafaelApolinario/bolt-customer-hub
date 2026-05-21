@@ -16,7 +16,7 @@ O projeto implementa cadastro, atualizacao, remocao logica e consulta de cliente
 - Spring Data JPA
 - Hibernate
 - H2 Database
-- Maven Wrapper
+- Maven local via scripts do projeto
 - Bean Validation
 - Spring RestClient para ViaCEP
 - Springdoc OpenAPI / Swagger
@@ -24,6 +24,74 @@ O projeto implementa cadastro, atualizacao, remocao logica e consulta de cliente
 - Mockito
 - Docker
 - GitHub Actions
+
+## Comecar do zero
+
+Pre-requisitos obrigatorios:
+
+- Java 17
+- Git
+
+Pre-requisitos opcionais:
+
+- Docker, apenas se quiser subir com `docker compose`
+- Postman, apenas se quiser importar a colecao em `docs/postman`
+
+Nao e necessario instalar Maven. Os scripts baixam e usam uma copia local do Maven em `.m2/tools`.
+
+Passo a passo no Windows com PowerShell:
+
+```powershell
+git clone <url-do-repositorio>
+cd bolt-customer-hub
+.\scripts\check.ps1
+.\scripts\run.ps1
+```
+
+Se a porta `8082` ja estiver em uso, rode em outra porta:
+
+```powershell
+.\scripts\run.ps1 -ServerPort 18082
+```
+
+Passo a passo no Git Bash, Linux ou macOS:
+
+```bash
+git clone <url-do-repositorio>
+cd bolt-customer-hub
+./scripts/check.sh
+./scripts/run.sh
+```
+
+Se a porta `8082` ja estiver em uso, rode em outra porta:
+
+```bash
+SERVER_PORT=18082 ./scripts/run.sh
+```
+
+Depois que a aplicacao subir, acesse:
+
+```txt
+http://localhost:8082/swagger-ui.html
+```
+
+## Validacao rapida da API
+
+Com a aplicacao rodando, execute em outro terminal PowerShell:
+
+```powershell
+.\scripts\api-smoke.ps1
+```
+
+Esse smoke test faz o fluxo principal da API:
+
+- verifica `GET /api/health`
+- cria um cliente com `POST /api/customers`
+- lista clientes com `GET /api/customers`
+- busca por ID com `GET /api/customers/{id}`
+- atualiza com `PUT /api/customers/{id}`
+- lista ultimos clientes com `GET /api/customers/latest`
+- remove logicamente com `DELETE /api/customers/{id}`
 
 ## Arquitetura
 
@@ -134,19 +202,18 @@ Pre-requisito:
 Java 17
 ```
 
-O repositorio usa Maven Wrapper, entao nao e necessario instalar Maven globalmente.
+O repositorio baixa uma copia local do Maven quando os scripts sao executados pela primeira vez, entao nao e necessario instalar Maven globalmente.
 
 No Windows:
 
 ```powershell
-$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
-.\mvnw.cmd spring-boot:run
+.\scripts\run.ps1
 ```
 
-Em bash:
+Em Git Bash, Linux ou macOS:
 
 ```bash
-./mvnw spring-boot:run
+./scripts/run.sh
 ```
 
 A aplicacao sobe em:
@@ -160,11 +227,10 @@ http://localhost:8082
 No Windows:
 
 ```powershell
-$env:MAVEN_USER_HOME = Join-Path (Get-Location) ".m2"
-.\mvnw.cmd clean test
+.\scripts\check.ps1
 ```
 
-Em bash:
+Em Git Bash, Linux ou macOS:
 
 ```bash
 ./scripts/check.sh
@@ -217,7 +283,7 @@ http://localhost:8082
 O workflow em `.github/workflows/ci.yml` executa:
 
 ```bash
-./mvnw -B clean test
+./scripts/check.sh
 ```
 
 Ele roda em push para `main`, `develop` e `feature/**`, alem de pull requests para `main` e `develop`.
@@ -225,9 +291,15 @@ Ele roda em push para `main`, `develop` e `feature/**`, alem de pull requests pa
 ## Scripts
 
 ```txt
-scripts/check.sh -> executa validacao completa
-scripts/test.sh  -> executa testes
-scripts/run.sh   -> sobe a aplicacao
+scripts/check.ps1     -> executa validacao completa no PowerShell
+scripts/test.ps1      -> executa testes no PowerShell
+scripts/run.ps1       -> sobe a aplicacao no PowerShell
+scripts/api-smoke.ps1 -> testa o fluxo principal da API
+scripts/mvn-local.ps1 -> baixa e executa Maven local no PowerShell
+scripts/check.sh      -> executa validacao completa em bash
+scripts/test.sh       -> executa testes em bash
+scripts/run.sh        -> sobe a aplicacao em bash
+scripts/mvn-local.sh  -> baixa e executa Maven local em bash
 ```
 
 ## ViaCEP

@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "Running validation..."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-./mvnw clean test
+echo "Running validation..."
+bash "$SCRIPT_DIR/mvn-local.sh" clean test
 
 echo "Validation completed successfully."

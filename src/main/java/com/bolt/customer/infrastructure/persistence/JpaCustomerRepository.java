@@ -23,7 +23,10 @@ public class JpaCustomerRepository implements CustomerRepository {
 
 	@Override
 	public Customer save(Customer customer) {
-		return repository.save(CustomerEntity.fromDomain(customer)).toDomain();
+		CustomerEntity entity = repository.findById(customer.getId().value())
+				.orElseGet(() -> CustomerEntity.fromDomain(customer));
+		entity.updateFromDomain(customer);
+		return repository.save(entity).toDomain();
 	}
 
 	@Override

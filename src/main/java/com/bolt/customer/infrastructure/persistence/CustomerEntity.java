@@ -3,7 +3,9 @@ package com.bolt.customer.infrastructure.persistence;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.bolt.customer.domain.customer.ConsumerUnit;
 import com.bolt.customer.domain.customer.Customer;
@@ -55,14 +57,18 @@ public class CustomerEntity {
 
 	public static CustomerEntity fromDomain(Customer customer) {
 		CustomerEntity entity = new CustomerEntity();
-		entity.id = customer.getId().value();
-		entity.name = customer.getName();
-		entity.document = customer.getDocument().value();
-		entity.status = customer.getStatus();
-		entity.createdAt = customer.getCreatedAt();
-		entity.updatedAt = customer.getUpdatedAt();
-		entity.replaceConsumerUnits(customer.getConsumerUnits());
+		entity.updateFromDomain(customer);
 		return entity;
+	}
+
+	public void updateFromDomain(Customer customer) {
+		this.id = customer.getId().value();
+		this.name = customer.getName();
+		this.document = customer.getDocument().value();
+		this.status = customer.getStatus();
+		this.createdAt = customer.getCreatedAt();
+		this.updatedAt = customer.getUpdatedAt();
+		this.replaceConsumerUnits(customer.getConsumerUnits());
 	}
 
 	public Customer toDomain() {
@@ -77,11 +83,28 @@ public class CustomerEntity {
 	}
 
 	private void replaceConsumerUnits(List<ConsumerUnit> units) {
-		this.consumerUnits.clear();
+		Set<String> requestedNumbers = units.stream()
+				.map(ConsumerUnit::number)
+				.collect(Collectors.toSet());
+
+		this.consumerUnits.removeIf(entity -> !requestedNumbers.contains(entity.getNumber()));
+
 		for (ConsumerUnit unit : units) {
-			ConsumerUnitEntity entity = ConsumerUnitEntity.fromDomain(unit);
+			ConsumerUnitEntity entity = findConsumerUnitByNumber(unit.number());
+			if (entity == null) {
+				entity = ConsumerUnitEntity.fromDomain(unit);
+				this.consumerUnits.add(entity);
+			} else {
+				entity.updateFromDomain(unit);
+			}
 			entity.setCustomer(this);
-			this.consumerUnits.add(entity);
 		}
+	}
+
+	private ConsumerUnitEntity findConsumerUnitByNumber(String number) {
+		return this.consumerUnits.stream()
+				.filter(entity -> entity.hasNumber(number))
+				.findFirst()
+				.orElse(null);
 	}
 }
